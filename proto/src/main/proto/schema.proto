@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package com.example.grpcdemo;
+
+option java_package = "com.example.grpcdemo";
+option java_multiple_files = true;
+
+message Book{
+  int32 id = 1;
+  string title = 2;
+  float price = 3;
+  int32 pages = 4;
+  int32 author_id = 5;
+}
+
+message Author{
+  int32 id = 1;
+  string name = 2;
+  Gender gender = 3;
+}
+
+enum Gender{
+  MALE = 0;
+  FEMALE = 1;
+}
+
+service BookAuthService{
+
+  // Unary - sync
+  rpc getAuthor(Author) returns (Author){}
+
+  // Server Streaming - async
+
+  // Client Streaming - async
+
+  // Bidirectional Streaming - async
+  
+}
