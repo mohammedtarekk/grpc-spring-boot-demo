@@ -9,10 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -25,6 +22,14 @@ public class BookAuthorClientService {
 
     @GrpcClient("grpc-demo-service")
     BookAuthServiceGrpc.BookAuthServiceStub asyncClient;
+
+    private final static List<Book> books = new ArrayList<>() {
+        {
+            add(Book.newBuilder().setAuthorId(1).setTitle("Book1").build());
+            add(Book.newBuilder().setAuthorId(1).setTitle("Book2").build());
+            add(Book.newBuilder().setAuthorId(2).setTitle("Book3").build());
+        }
+    };
 
     public Map<Descriptors.FieldDescriptor, Object> getAuthor(Integer authorId){
         Author authorRequest = Author.newBuilder().setId(authorId).build();
@@ -61,6 +66,33 @@ public class BookAuthorClientService {
 
         log.info("End waiting");
         return await ? response : Collections.emptyList();
+    }
+
+    public Map<Descriptors.FieldDescriptor, Object> getExpensiveBook() throws InterruptedException {
+
+        final Map<Descriptors.FieldDescriptor, Object>[] response = new Map[]{new HashMap<>()};
+        CountDownLatch latch = new CountDownLatch(1);
+        StreamObserver<Book> responseObserver = asyncClient.getExpensiveBook(new StreamObserver<>() {
+            @Override
+            public void onNext(Book book) {
+                response[0] = book.getAllFields();
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                latch.countDown();
+            }
+
+            @Override
+            public void onCompleted() {
+                latch.countDown();
+            }
+        });
+
+        books.forEach(responseObserver::onNext);
+        boolean await = latch.await(1, TimeUnit.MINUTES);
+        return await ? response[0] : Collections.EMPTY_MAP;
+
     }
 
 }

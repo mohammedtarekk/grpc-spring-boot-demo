@@ -26,4 +26,9 @@ public class BookAuthorController {
         return bookAuthorClientService.getBooksByAuthor(authorId);
     }
 
+    @GetMapping("/expensivebook")
+    public Map<Descriptors.FieldDescriptor, Object> getExpensiveBook() throws InterruptedException {
+        return bookAuthorClientService.getExpensiveBook();
+    }
+
 }

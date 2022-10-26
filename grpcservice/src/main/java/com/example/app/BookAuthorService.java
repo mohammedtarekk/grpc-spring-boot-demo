@@ -49,4 +49,31 @@ public class BookAuthorService extends BookAuthServiceGrpc.BookAuthServiceImplBa
         log.info("Response Completed");
         responseObserver.onCompleted();
     }
+
+    @Override
+    public StreamObserver<Book> getExpensiveBook(StreamObserver<Book> responseObserver) {
+        return new StreamObserver<>() {
+
+            Book expensiveBook;
+            float maxPrice = 0;
+            @Override
+            public void onNext(Book book) {
+                if(book.getPrice() > maxPrice){
+                    maxPrice = book.getPrice();
+                    expensiveBook = book;
+                }
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                responseObserver.onError(throwable);
+            }
+
+            @Override
+            public void onCompleted() {
+                responseObserver.onNext(expensiveBook);
+                responseObserver.onCompleted();
+            }
+        };
+    }
 }
