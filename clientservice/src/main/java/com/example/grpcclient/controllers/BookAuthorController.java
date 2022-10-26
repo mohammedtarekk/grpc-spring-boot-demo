@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -18,6 +19,11 @@ public class BookAuthorController {
     @GetMapping("/author/{authorId}")
     public Map<Descriptors.FieldDescriptor, Object> getAuthor(@PathVariable Integer authorId){
         return bookAuthorClientService.getAuthor(authorId);
+    }
+
+    @GetMapping("/books/{authorId}")
+    public List<Map<Descriptors.FieldDescriptor, Object>> getBooksByAuthor(@PathVariable Integer authorId) throws InterruptedException {
+        return bookAuthorClientService.getBooksByAuthor(authorId);
     }
 
 }

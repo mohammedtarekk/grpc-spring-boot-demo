@@ -30,6 +30,7 @@ service BookAuthService{
   rpc getAuthor(Author) returns (Author){}
 
   // Server Streaming - async
+  rpc getBooksByAuthor(Author) returns (stream Book){}
 
   // Client Streaming - async
 
