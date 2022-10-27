@@ -3,6 +3,7 @@ package com.example.grpcclient.services;
 import com.example.grpcdemo.Author;
 import com.example.grpcdemo.Book;
 import com.example.grpcdemo.BookAuthServiceGrpc;
+import com.example.grpcdemo.Gender;
 import com.google.protobuf.Descriptors;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
@@ -68,14 +69,14 @@ public class BookAuthorClientService {
         return await ? response : Collections.emptyList();
     }
 
-    public Map<Descriptors.FieldDescriptor, Object> getExpensiveBook() throws InterruptedException {
+    public Map<String, Map<Descriptors.FieldDescriptor, Object>> getExpensiveBook() throws InterruptedException {
 
-        final Map<Descriptors.FieldDescriptor, Object>[] response = new Map[]{new HashMap<>()};
+        final Map<String, Map<Descriptors.FieldDescriptor, Object>> response = new HashMap<>();
         CountDownLatch latch = new CountDownLatch(1);
         StreamObserver<Book> responseObserver = asyncClient.getExpensiveBook(new StreamObserver<>() {
             @Override
             public void onNext(Book book) {
-                response[0] = book.getAllFields();
+                response.put("Result", book.getAllFields());
             }
 
             @Override
@@ -90,9 +91,40 @@ public class BookAuthorClientService {
         });
 
         books.forEach(responseObserver::onNext);
+        responseObserver.onCompleted();
         boolean await = latch.await(1, TimeUnit.MINUTES);
-        return await ? response[0] : Collections.EMPTY_MAP;
+        return await ? response : Collections.EMPTY_MAP;
 
+    }
+
+    public List<Map<Descriptors.FieldDescriptor, Object>> getBookById(Integer bookId) throws InterruptedException {
+
+        final List<Map<Descriptors.FieldDescriptor, Object>> response = new ArrayList<>();
+        CountDownLatch latch = new CountDownLatch(1);
+
+        StreamObserver<Book> requestObserver = asyncClient.getBookById(new StreamObserver<>() {
+            @Override
+            public void onNext(Book book) {
+                response.add(book.getAllFields());
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                latch.countDown();
+                throwable.printStackTrace();
+            }
+
+            @Override
+            public void onCompleted() {
+                latch.countDown();
+            }
+        });
+
+
+        books.forEach(requestObserver::onNext);
+        boolean await = latch.await(1, TimeUnit.MINUTES);
+        requestObserver.onCompleted();
+        return await ? response : Collections.emptyList();
     }
 
 }

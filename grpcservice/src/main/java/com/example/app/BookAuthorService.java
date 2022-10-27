@@ -76,4 +76,27 @@ public class BookAuthorService extends BookAuthServiceGrpc.BookAuthServiceImplBa
             }
         };
     }
+
+    @Override
+    public StreamObserver<Book> getBooksByIds(StreamObserver<Book> responseObserver) {
+        return new StreamObserver<>() {
+            @Override
+            public void onNext(Book book) {
+                books.stream()
+                        .filter(b -> b.getId() == book.getId())
+                        .findFirst()
+                        .ifPresent(responseObserver::onNext);
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                responseObserver.onError(throwable);
+            }
+
+            @Override
+            public void onCompleted() {
+                responseObserver.onCompleted();
+            }
+        };
+    }
 }
