@@ -24,9 +24,9 @@ public class BookAuthorService extends BookAuthServiceGrpc.BookAuthServiceImplBa
 
     private final static List<Book> books = new ArrayList<>() {
         {
-            add(Book.newBuilder().setAuthorId(1).setTitle("Book1").build());
-            add(Book.newBuilder().setAuthorId(1).setTitle("Book2").build());
-            add(Book.newBuilder().setAuthorId(2).setTitle("Book3").build());
+            add(Book.newBuilder().setId(1).setAuthorId(1).setTitle("Book1").build());
+            add(Book.newBuilder().setId(2).setAuthorId(1).setTitle("Book2").build());
+            add(Book.newBuilder().setId(3).setAuthorId(2).setTitle("Book3").build());
         }
     };
 

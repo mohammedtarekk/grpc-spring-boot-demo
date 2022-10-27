@@ -40,6 +40,6 @@ service BookAuthService{
 
   // Bidirectional Streaming - async
   // Client will send stream of request and server will respond with stream of response.
-  rpc getBookById(stream Book) returns (stream Book){}
+  rpc getBooksByIds(stream Book) returns (stream Book){}
 
 }

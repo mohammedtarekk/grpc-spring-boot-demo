@@ -3,9 +3,7 @@ package com.example.grpcclient.controllers;
 import com.example.grpcclient.services.BookAuthorClientService;
 import com.google.protobuf.Descriptors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -31,9 +29,9 @@ public class BookAuthorController {
         return bookAuthorClientService.getExpensiveBook();
     }
 
-    @GetMapping("book/{bookId}")
-    public List<Map<Descriptors.FieldDescriptor, Object>> getBookById(@PathVariable Integer bookId) throws InterruptedException {
-        return bookAuthorClientService.getBookById(bookId);
+    @GetMapping("books")
+    public List<Map<Descriptors.FieldDescriptor, Object>> getBookById(@RequestParam List<Integer> booksIds) throws InterruptedException {
+        return bookAuthorClientService.getBooksByIds(booksIds);
     }
 
 }

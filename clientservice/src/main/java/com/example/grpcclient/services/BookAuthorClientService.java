@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -97,12 +98,16 @@ public class BookAuthorClientService {
 
     }
 
-    public List<Map<Descriptors.FieldDescriptor, Object>> getBookById(Integer bookId) throws InterruptedException {
+    public List<Map<Descriptors.FieldDescriptor, Object>> getBooksByIds(List<Integer> booksIds) throws InterruptedException {
 
         final List<Map<Descriptors.FieldDescriptor, Object>> response = new ArrayList<>();
         CountDownLatch latch = new CountDownLatch(1);
 
-        StreamObserver<Book> requestObserver = asyncClient.getBookById(new StreamObserver<>() {
+        List<Book> simpleBooks = booksIds.stream()
+                .map(id -> Book.newBuilder().setId(id).build())
+                .collect(Collectors.toList());
+
+        StreamObserver<Book> requestObserver = asyncClient.getBooksByIds(new StreamObserver<>() {
             @Override
             public void onNext(Book book) {
                 response.add(book.getAllFields());
@@ -121,9 +126,9 @@ public class BookAuthorClientService {
         });
 
 
-        books.forEach(requestObserver::onNext);
-        boolean await = latch.await(1, TimeUnit.MINUTES);
+        simpleBooks.forEach(requestObserver::onNext);
         requestObserver.onCompleted();
+        boolean await = latch.await(1, TimeUnit.MINUTES);
         return await ? response : Collections.emptyList();
     }
 
